@@ -8,11 +8,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"recipes-core-api/api/v1/models"
-	"recipes-core-api/configs"
+	"recipes-core-api/internal/mongo"
 	"time"
 )
 
-var ingredientCollection = configs.GetCollection(configs.DB, "Ingredient")
+var ingredientCollection = mongo.GetCollection(mongo.DB, "Ingredient")
 var validate = validator.New()
 
 func CreateIngredient() gin.HandlerFunc {

@@ -1,8 +1,9 @@
-package configs
+package mongo
 
 import (
 	"context"
 	"log"
+	"recipes-core-api/internal/env"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,7 +13,7 @@ import (
 var DB = ConnectDB()
 
 func ConnectDB() *mongo.Client {
-	client, err := mongo.NewClient(options.Client().ApplyURI(EnvMongoURI()))
+	client, err := mongo.NewClient(options.Client().ApplyURI(env.LoadMongoENV()))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,4 +39,11 @@ func GetCollection(client *mongo.Client, collectionName string) *mongo.Collectio
 	collection := client.Database("api").Collection(collectionName)
 
 	return collection
+}
+
+func DropDB() {
+	err := DB.Database("api").Drop(context.TODO())
+	if err != nil {
+		log.Println(err)
+	}
 }

@@ -7,11 +7,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"recipes-core-api/api/v1/models"
-	"recipes-core-api/configs"
+	"recipes-core-api/internal/mongo"
 	"time"
 )
 
-var recipeCollection = configs.GetCollection(configs.DB, "Recipe")
+var recipeCollection = mongo.GetCollection(mongo.DB, "Recipe")
 
 func CreateRecipe() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -21,7 +21,10 @@ func CreateRecipe() gin.HandlerFunc {
 		defer cancel()
 
 		ingredientObjectId, _ := primitive.ObjectIDFromHex("630522989df1f66715ab2508") // salt
-		ingredientCollection.FindOne(ctx, bson.M{"_id": ingredientObjectId}).Decode(&ingredient)
+		err := ingredientCollection.FindOne(ctx, bson.M{"_id": ingredientObjectId}).Decode(&ingredient)
+		if err != nil {
+			return
+		}
 
 		newRecipe := models.Recipe{
 			Id:              primitive.NewObjectID(),

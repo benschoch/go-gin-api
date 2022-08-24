@@ -1,4 +1,4 @@
-package configs
+package env
 
 import (
 	"log"
@@ -7,7 +7,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func EnvMongoURI() string {
+func LoadMongoENV() string {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error: No .env file found")

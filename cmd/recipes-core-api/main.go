@@ -3,16 +3,16 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"recipes-core-api/api/v1/routes"
-	"recipes-core-api/configs"
+	"recipes-core-api/internal/mongo"
 )
 
 func main() {
 	router := gin.Default()
 	// configure mongo
-	configs.ConnectDB()
+	mongo.ConnectDB()
 	// add routes
 	routes.IngredientRoute(router)
 	routes.RecipeRoute(router)
 
-	router.Run("localhost:8000")
+	router.Run(":8000")
 }

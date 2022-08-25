@@ -13,6 +13,7 @@ func main() {
 	// add routes
 	routes.IngredientRoute(router)
 	routes.RecipeRoute(router)
+	routes.UnitRoute(router)
 
 	router.Run(":8000")
 }

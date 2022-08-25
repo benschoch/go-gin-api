@@ -21,7 +21,7 @@ func CreateIngredient() gin.HandlerFunc {
 		var ingredient models.Ingredient
 		defer cancel()
 
-		//validate the request body
+		// bind request to struct
 		if err := c.BindJSON(&ingredient); err != nil {
 			c.JSON(http.StatusBadRequest, models.ApiResponse{
 				Status:  http.StatusBadRequest,
@@ -71,7 +71,6 @@ func GetAllIngredients() gin.HandlerFunc {
 		defer cancel()
 
 		results, err := ingredientCollection.Find(ctx, bson.M{})
-
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.ApiResponse{
 				Status:  http.StatusInternalServerError,

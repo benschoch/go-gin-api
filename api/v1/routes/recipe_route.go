@@ -6,9 +6,9 @@ import (
 )
 
 func RecipeRoute(router *gin.Engine) {
-	// router.POST("/recipes", handlers.CreateIngredient())
-	//	router.PUT("/ingredients/:userId", controllers.EditAUser())
-	//	router.DELETE("/ingredients/:userId", controllers.DeleteAUser())
+	router.POST("/recipes", handlers.CreateRecipe())
+	//	router.PUT("/recipes/:id", controllers.EditAUser())
+	//	router.DELETE("/recipes/:id", controllers.DeleteAUser())
 	// router.GET("/recipes/:id", handlers.GetIngredientById())
-	router.GET("/recipes", handlers.CreateRecipe())
+	router.GET("/recipes", handlers.GetAllRecipes())
 }

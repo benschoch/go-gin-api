@@ -13,7 +13,7 @@ build: ## Build compiles the packages named by the import paths.
 run: ## Compiles and runs the named main Go package.
 	go run cmd/main.go
 
-update: ## Update all modules.
+update: ## Install and update all modules.
 	go get -u ./...
 
 ## —— MongoDB —————————————————————————————————————————————————————————————————————————————————————————————————————————

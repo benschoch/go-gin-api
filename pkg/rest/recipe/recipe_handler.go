@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
 	"net/http"
 	"recipes-core-api/models"
 	"recipes-core-api/pkg/db"
@@ -34,43 +35,57 @@ func CreateRecipe() gin.HandlerFunc {
 		//	return
 		//}
 
-		ingredientObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca2") // salt
-		errI := ingredientCollection.FindOne(ctx, bson.M{"_id": ingredientObjectId}).Decode(&i)
-		if errI != nil {
-			return
+		for x := 1; x < 5000; x++ {
+
+			ingredientObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca2") // salt
+			errI := ingredientCollection.FindOne(ctx, bson.M{"_id": ingredientObjectId}).Decode(&i)
+			if errI != nil {
+				return
+			}
+
+			unitObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca7") // g
+			errU := unitCollection.FindOne(ctx, bson.M{"_id": unitObjectId}).Decode(&u)
+			if errU != nil {
+				return
+			}
+
+			newRecipeIngredient1 := models.RecipeIngredient{
+				Id:         primitive.NewObjectID(),
+				Ingredient: i,
+				Unit:       u,
+				AmountFrom: 5,
+			}
+
+			newRecipeIngredient2 := models.RecipeIngredient{
+				Id:         primitive.NewObjectID(),
+				Ingredient: i,
+				Unit:       u,
+				AmountFrom: 5,
+			}
+
+			newRecipeIngredientGroup := models.RecipeIngredientGroup{
+				Id:               primitive.NewObjectID(),
+				Name:             "default",
+				Order:            1,
+				RecipeIngredient: []models.RecipeIngredient{newRecipeIngredient1, newRecipeIngredient2},
+			}
+
+			newRecipe := models.Recipe{
+				Id:                    primitive.NewObjectID(),
+				Language:              "hu_HU",
+				IsPublished:           true,
+				Title:                 "My first Recipe with GO!",
+				Slug:                  "my-first-recipe-with-go",
+				PreparationTime:       20,
+				CookingTime:           60,
+				Difficulty:            1,
+				YoutubeVideoId:        "someFancyYoutubeVideoId",
+				RecipeIngredientGroup: []models.RecipeIngredientGroup{newRecipeIngredientGroup},
+			}
+
+			recipeCollection.InsertOne(ctx, newRecipe)
 		}
-
-		unitObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca7") // g
-		errU := unitCollection.FindOne(ctx, bson.M{"_id": unitObjectId}).Decode(&u)
-		if errU != nil {
-			return
-		}
-
-		newRecipeIngredient1 := models.RecipeIngredient{
-			Id:         primitive.NewObjectID(),
-			Ingredient: i,
-			Unit:       u,
-			Amount:     5,
-		}
-
-		newRecipeIngredient2 := models.RecipeIngredient{
-			Id:         primitive.NewObjectID(),
-			Ingredient: i,
-			Unit:       u,
-			Amount:     5,
-		}
-
-		newRecipe := models.Recipe{
-			Id:               primitive.NewObjectID(),
-			Title:            "My first Recipe with GO!",
-			PreparationTime:  20,
-			RecipeIngredient: []models.RecipeIngredient{newRecipeIngredient1, newRecipeIngredient2},
-		}
-
-		recipeCollection.InsertOne(ctx, newRecipe)
-
 	}
-
 }
 
 func GetAllRecipes() gin.HandlerFunc {
@@ -99,6 +114,58 @@ func GetAllRecipes() gin.HandlerFunc {
 			Status:  http.StatusOK,
 			Message: "success",
 			Data:    map[string]interface{}{"data": recipes}},
+		)
+	}
+}
+
+func GetRecipeById() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		recipeId := c.Param("id")
+		var recipe models.Recipe
+		defer cancel()
+
+		objId, _ := primitive.ObjectIDFromHex(recipeId)
+		log.Println(objId)
+		err := ingredientCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&recipe)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, models.ApiResponse{
+				Status:  http.StatusInternalServerError,
+				Message: "error",
+				Data:    map[string]interface{}{"data": err.Error()}},
+			)
+			return
+		}
+
+		c.JSON(http.StatusOK, models.ApiResponse{
+			Status:  http.StatusOK,
+			Message: "success",
+			Data:    map[string]interface{}{"data": recipe}},
+		)
+	}
+}
+
+func GetRecipeByTitle() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		title := c.Param("title")
+		var recipe models.Recipe
+		defer cancel()
+
+		err := ingredientCollection.FindOne(ctx, bson.M{"title": title}).Decode(&recipe)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, models.ApiResponse{
+				Status:  http.StatusInternalServerError,
+				Message: "error",
+				Data:    map[string]interface{}{"data": err.Error()}},
+			)
+			return
+		}
+
+		c.JSON(http.StatusOK, models.ApiResponse{
+			Status:  http.StatusOK,
+			Message: "success",
+			Data:    map[string]interface{}{"data": recipe}},
 		)
 	}
 }

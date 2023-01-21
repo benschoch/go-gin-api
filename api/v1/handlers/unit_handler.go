@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var unitCollection = mongo.GetCollection(mongo.DB, "Unit")
+var unitCollection = mongo.GetCollection(mongo.DB, "units")
 
 func CreateUnit() {
 	// TODO implement

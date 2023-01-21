@@ -11,34 +11,34 @@ import (
 	"time"
 )
 
-var recipeCollection = mongo.GetCollection(mongo.DB, "Recipe")
+var recipeCollection = mongo.GetCollection(mongo.DB, "recipes")
 
 func CreateRecipe() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		var recipe models.Recipe
+		//var recipe models.Recipe
 		//var recipeIngredient models.RecipeIngredient
 		var ingredient models.Ingredient
 		var unit models.Unit
 		defer cancel()
 
 		// validate the request and bind to struct
-		if err := c.BindJSON(&recipe); err != nil {
-			c.JSON(http.StatusBadRequest, models.ApiResponse{
-				Status:  http.StatusBadRequest,
-				Message: "error",
-				Data:    map[string]interface{}{"data": err.Error()}},
-			)
-			return
-		}
+		//if err := c.BindJSON(&recipe); err != nil {
+		//	c.JSON(http.StatusBadRequest, models.ApiResponse{
+		//		Status:  http.StatusBadRequest,
+		//		Message: "error",
+		//		Data:    map[string]interface{}{"data": err.Error()}},
+		//	)
+		//	return
+		//}
 
-		ingredientObjectId, _ := primitive.ObjectIDFromHex("63076fdfd134ccb4cc3c182d") // salt
+		ingredientObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca2") // salt
 		errI := ingredientCollection.FindOne(ctx, bson.M{"_id": ingredientObjectId}).Decode(&ingredient)
 		if errI != nil {
 			return
 		}
 
-		unitObjectId, _ := primitive.ObjectIDFromHex("63076fdfd134ccb4cc3c1832") // g
+		unitObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca7") // g
 		errU := unitCollection.FindOne(ctx, bson.M{"_id": unitObjectId}).Decode(&unit)
 		if errU != nil {
 			return

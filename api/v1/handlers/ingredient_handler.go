@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-var ingredientCollection = mongo.GetCollection(mongo.DB, "Ingredient")
+var ingredientCollection = mongo.GetCollection(mongo.DB, "ingredients")
 var validate = validator.New()
 
 func CreateIngredient() gin.HandlerFunc {

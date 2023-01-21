@@ -61,7 +61,7 @@ func initDemoData(client mongo.Client) {
 
 	log.Println("Loading demo data...")
 
-	ingredientCollection := client.Database("api").Collection("Ingredient")
+	ingredientCollection := client.Database("api").Collection("ingredients")
 	ingredientArray := []string{"salt", "pepper", "pasta", "meat", "oil"}
 	for _, s := range ingredientArray {
 		newIngredient := models.Ingredient{Id: primitive.NewObjectID(), Singular: s, Plural: s}
@@ -71,7 +71,7 @@ func initDemoData(client mongo.Client) {
 		}
 	}
 
-	unitCollection := client.Database("api").Collection("Unit")
+	unitCollection := client.Database("api").Collection("units")
 	unitArray := []string{"g", "kg", "l", "ml", "handful"}
 	for _, s := range unitArray {
 		newUnit := models.Unit{Id: primitive.NewObjectID(), Singular: s, Plural: s}

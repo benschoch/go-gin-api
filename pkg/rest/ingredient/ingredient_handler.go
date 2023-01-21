@@ -1,4 +1,4 @@
-package handlers
+package ingredient
 
 import (
 	"context"
@@ -7,12 +7,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
-	"recipes-core-api/api/v1/models"
-	"recipes-core-api/internal/mongo"
+	"recipes-core-api/models"
+	"recipes-core-api/pkg/db"
 	"time"
 )
 
-var ingredientCollection = mongo.GetCollection(mongo.DB, "ingredients")
+var ingredientCollection = db.GetCollection(db.DB, "ingredients")
 var validate = validator.New()
 
 func CreateIngredient() gin.HandlerFunc {

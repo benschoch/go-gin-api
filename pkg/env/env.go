@@ -12,5 +12,5 @@ func LoadMongoENV() string {
 	if err != nil {
 		log.Fatal("Error: No .env file found")
 	}
-	return os.Getenv("MONGODB")
+	return os.Getenv("MONGODB_URL")
 }

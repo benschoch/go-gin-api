@@ -1,16 +1,16 @@
-package handlers
+package unit
 
 import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
-	"recipes-core-api/api/v1/models"
-	"recipes-core-api/internal/mongo"
+	"recipes-core-api/models"
+	"recipes-core-api/pkg/db"
 	"time"
 )
 
-var unitCollection = mongo.GetCollection(mongo.DB, "units")
+var unitCollection = db.GetCollection(db.DB, "units")
 
 func CreateUnit() {
 	// TODO implement

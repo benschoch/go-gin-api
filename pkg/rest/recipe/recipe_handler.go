@@ -1,4 +1,4 @@
-package handlers
+package recipe
 
 import (
 	"context"
@@ -6,20 +6,22 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
-	"recipes-core-api/api/v1/models"
-	"recipes-core-api/internal/mongo"
+	"recipes-core-api/models"
+	"recipes-core-api/pkg/db"
 	"time"
 )
 
-var recipeCollection = mongo.GetCollection(mongo.DB, "recipes")
+var recipeCollection = db.GetCollection(db.DB, "recipes")
+var ingredientCollection = db.GetCollection(db.DB, "ingredients")
+var unitCollection = db.GetCollection(db.DB, "units")
 
 func CreateRecipe() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		//var recipe models.Recipe
 		//var recipeIngredient models.RecipeIngredient
-		var ingredient models.Ingredient
-		var unit models.Unit
+		var i models.Ingredient
+		var u models.Unit
 		defer cancel()
 
 		// validate the request and bind to struct
@@ -33,28 +35,28 @@ func CreateRecipe() gin.HandlerFunc {
 		//}
 
 		ingredientObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca2") // salt
-		errI := ingredientCollection.FindOne(ctx, bson.M{"_id": ingredientObjectId}).Decode(&ingredient)
+		errI := ingredientCollection.FindOne(ctx, bson.M{"_id": ingredientObjectId}).Decode(&i)
 		if errI != nil {
 			return
 		}
 
 		unitObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca7") // g
-		errU := unitCollection.FindOne(ctx, bson.M{"_id": unitObjectId}).Decode(&unit)
+		errU := unitCollection.FindOne(ctx, bson.M{"_id": unitObjectId}).Decode(&u)
 		if errU != nil {
 			return
 		}
 
 		newRecipeIngredient1 := models.RecipeIngredient{
 			Id:         primitive.NewObjectID(),
-			Ingredient: ingredient,
-			Unit:       unit,
+			Ingredient: i,
+			Unit:       u,
 			Amount:     5,
 		}
 
 		newRecipeIngredient2 := models.RecipeIngredient{
 			Id:         primitive.NewObjectID(),
-			Ingredient: ingredient,
-			Unit:       unit,
+			Ingredient: i,
+			Unit:       u,
 			Amount:     5,
 		}
 

@@ -1,6 +1,8 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type Recipe struct {
 	Id               primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`

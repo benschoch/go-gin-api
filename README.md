@@ -1,11 +1,11 @@
 # recipes api
 go 1.19, gin-gonic, mongoDB6
 ```shell
-docker run -d --name go-mongo-api -p 127.0.0.1:27017:27017 -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD=pass mongo
+docker run -d --name go-mongo-rest -p 127.0.0.1:27017:27017 -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD=pass mongo
 ```
 run app:
 ```shell
-go run cmd/recipes-core-api/main.go
+go run cmd/recipes-core-rest/main.go
 ```
 
 ### references:

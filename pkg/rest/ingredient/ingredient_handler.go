@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
@@ -41,7 +42,7 @@ func CreateIngredient() gin.HandlerFunc {
 		}
 
 		newIngredient := models.Ingredient{
-			Id:       primitive.NewObjectID(),
+			Id:       uuid.NewString(),
 			Singular: ingredient.Singular,
 			Plural:   ingredient.Plural,
 			Synonyms: ingredient.Synonyms,
@@ -105,7 +106,7 @@ func GetAllIngredients() gin.HandlerFunc {
 func GetIngredientById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		ingredientId := c.Param("ingredientId")
+		ingredientId := c.Param("id")
 		var ingredient models.Ingredient
 		defer cancel()
 

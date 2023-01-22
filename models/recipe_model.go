@@ -1,11 +1,7 @@
 package models
 
-import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
-
 type Recipe struct {
-	Id                    primitive.ObjectID      `json:"id,omitempty" bson:"_id,omitempty"`
+	Id                    string                  `json:"id" bson:"_id"`
 	Language              string                  `json:"language,omitempty" bson:"language,omitempty"`
 	IsPublished           bool                    `json:"is_published,omitempty" bson:"is_published,omitempty"`
 	Title                 string                  `json:"title,omitempty" bson:"title,omitempty"`
@@ -21,17 +17,15 @@ type Recipe struct {
 }
 
 type RecipeIngredientGroup struct {
-	Id               primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Name             string             `json:"name,omitempty" bson:"name,omitempty"`
 	Order            int                `json:"order,omitempty" bson:"order,omitempty"`
 	RecipeIngredient []RecipeIngredient `json:"ingredients,omitempty" bson:"recipe_ingredients,omitempty"`
 }
 
 type RecipeIngredient struct {
-	Id               primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Ingredient       Ingredient         `json:"ingredient,omitempty" bson:"ingredient,omitempty"`
-	Unit             Unit               `json:"unit,omitempty" bson:"unit,omitempty"`
-	AmountFrom       int                `json:"amount_from,omitempty" bson:"amount_from,omitempty"`
-	AmountTo         int                `json:"amount_to,omitempty" bson:"amount_to,omitempty"`
-	IsMainIngredient bool               `json:"is_main_ingredient,omitempty" bson:"is_main_ingredient,omitempty"`
+	Ingredient       Ingredient `json:"ingredient,omitempty" bson:"ingredient,omitempty"`
+	Unit             Unit       `json:"unit,omitempty" bson:"unit,omitempty"`
+	AmountFrom       int        `json:"amount_from,omitempty" bson:"amount_from,omitempty"`
+	AmountTo         int        `json:"amount_to,omitempty" bson:"amount_to,omitempty"`
+	IsMainIngredient bool       `json:"is_main_ingredient,omitempty" bson:"is_main_ingredient,omitempty"`
 }

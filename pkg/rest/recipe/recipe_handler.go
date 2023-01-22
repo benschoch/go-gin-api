@@ -3,9 +3,9 @@ package recipe
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"log"
 	"net/http"
 	"recipes-core-api/models"
 	"recipes-core-api/pkg/db"
@@ -18,7 +18,7 @@ var unitCollection = db.GetCollection(db.DB, "units")
 
 func CreateRecipe() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		//var recipe models.Recipe
 		//var recipeIngredient models.RecipeIngredient
 		var i models.Ingredient
@@ -50,28 +50,24 @@ func CreateRecipe() gin.HandlerFunc {
 			}
 
 			newRecipeIngredient1 := models.RecipeIngredient{
-				Id:         primitive.NewObjectID(),
 				Ingredient: i,
 				Unit:       u,
 				AmountFrom: 5,
 			}
 
 			newRecipeIngredient2 := models.RecipeIngredient{
-				Id:         primitive.NewObjectID(),
 				Ingredient: i,
 				Unit:       u,
-				AmountFrom: 5,
 			}
 
 			newRecipeIngredientGroup := models.RecipeIngredientGroup{
-				Id:               primitive.NewObjectID(),
 				Name:             "default",
-				Order:            1,
+				Order:            12,
 				RecipeIngredient: []models.RecipeIngredient{newRecipeIngredient1, newRecipeIngredient2},
 			}
 
 			newRecipe := models.Recipe{
-				Id:                    primitive.NewObjectID(),
+				Id:                    uuid.NewString(),
 				Language:              "hu_HU",
 				IsPublished:           true,
 				Title:                 "My first Recipe with GO!",
@@ -125,9 +121,8 @@ func GetRecipeById() gin.HandlerFunc {
 		var recipe models.Recipe
 		defer cancel()
 
-		objId, _ := primitive.ObjectIDFromHex(recipeId)
-		log.Println(objId)
-		err := ingredientCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&recipe)
+		//objId, _ := primitive.ObjectIDFromHex(recipeId)
+		err := recipeCollection.FindOne(ctx, bson.M{"_id": recipeId}).Decode(&recipe)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.ApiResponse{
 				Status:  http.StatusInternalServerError,
@@ -152,7 +147,7 @@ func GetRecipeByTitle() gin.HandlerFunc {
 		var recipe models.Recipe
 		defer cancel()
 
-		err := ingredientCollection.FindOne(ctx, bson.M{"title": title}).Decode(&recipe)
+		err := recipeCollection.FindOne(ctx, bson.M{"title": title}).Decode(&recipe)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.ApiResponse{
 				Status:  http.StatusInternalServerError,

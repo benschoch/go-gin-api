@@ -31,8 +31,6 @@ func ConnectDB() *mongo.Client {
 
 	log.Println("Connection to mongo: established")
 
-	//initDemoData(*client)
-
 	return client
 }
 
@@ -48,34 +46,3 @@ func DropDB() {
 		log.Println(err)
 	}
 }
-
-//func initDemoData(client mongo.Client) {
-//	log.Println("Dropping database...")
-//
-//	err := client.Database("rest").Drop(context.TODO())
-//	if err != nil {
-//		log.Println(err)
-//	}
-//
-//	log.Println("Loading demo data...")
-//
-//	ingredientCollection := client.Database("rest").Collection("ingredients")
-//	ingredientArray := []string{"salt", "pepper", "pasta", "meat", "oil"}
-//	for _, s := range ingredientArray {
-//		newIngredient := ingredient.Ingredient{Id: primitive.NewObjectID(), Singular: s, Plural: s}
-//		_, err := ingredientCollection.InsertOne(context.TODO(), newIngredient)
-//		if err != nil {
-//			log.Println(err)
-//		}
-//	}
-//
-//	unitCollection := client.Database("rest").Collection("units")
-//	unitArray := []string{"g", "kg", "l", "ml", "handful"}
-//	for _, s := range unitArray {
-//		newUnit := unit.Unit{Id: primitive.NewObjectID(), Singular: s, Plural: s}
-//		_, err := unitCollection.InsertOne(context.TODO(), newUnit)
-//		if err != nil {
-//			log.Println(err)
-//		}
-//	}
-//}

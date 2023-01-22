@@ -8,6 +8,15 @@ run app:
 go run cmd/recipes-core-rest/main.go
 ```
 
+execute demo data (5000 recipes):
+```
+POST: http://localhost:9000/demo
+```
+get all recipes:
+```
+GET: http://localhost:9000/recipes
+```
+
 ### references:
 https://github.com/gin-gonic/gin  
 https://github.com/swaggo/gin-swagger  

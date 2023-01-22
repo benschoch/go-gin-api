@@ -114,6 +114,12 @@ func GetAllRecipes() gin.HandlerFunc {
 	}
 }
 
+func GetAllRecipesPaginated() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+	}
+}
+
 func GetRecipeById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

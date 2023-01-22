@@ -13,7 +13,9 @@ type Recipe struct {
 	Course                []Course                `json:"courses,omitempty" bson:"courses,omitempty"`
 	Diet                  []Diet                  `json:"diets,omitempty" bson:"diets,omitempty"`
 	RecipeIngredientGroup []RecipeIngredientGroup `json:"ingredient_groups,omitempty" bson:"ingredient_groups,omitempty"`
+	Image                 Image                   `json:"images,omitempty" bson:"images,omitempty"`
 	ServingType           ServingType             `json:"serving_type,omitempty" bson:"serving_type,omitempty"`
+	Region                []Region                `json:"regions,omitempty" bson:"region,omitempty"`
 }
 
 type RecipeIngredientGroup struct {

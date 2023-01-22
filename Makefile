@@ -1,6 +1,6 @@
 # Misc
 .DEFAULT_GOAL = help
-.PHONY        = help build run update db-dump db-restore
+.PHONY        = help build run update dump restore
 
 ## —— Golang & MongoDB Makefile ———————————————————————————————————————————————————————————————————————————————————————
 help: ## Outputs this help screen
@@ -17,10 +17,10 @@ update: ## Install and update all modules.
 	go get -u ./...
 
 ## —— MongoDB —————————————————————————————————————————————————————————————————————————————————————————————————————————
-db-dump: ## Creates a binary export of a database's contents.
+dump: ## Creates a binary export of a database's contents.
 	 mongodump --host=127.0.0.1 -u root -p pass --out=data
 
-db-restore: ## Loads data from either a binary database dump.
+restore: ## Loads data from either a binary database dump.
 	mongorestore --authenticationDatabase=admin --uri "mongodb://root:pass@localhost:27017/api" ./data/dev/api
 
 ## —— Tests ———————————————————————————————————————————————————————————————————————————————————————————————————————————

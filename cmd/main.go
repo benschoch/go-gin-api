@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"recipes-core-api/pkg/db"
+	"recipes-core-api/pkg/middleware"
 	"recipes-core-api/pkg/rest/demo"
 	"recipes-core-api/pkg/rest/ingredient"
 	"recipes-core-api/pkg/rest/recipe"
@@ -15,6 +16,9 @@ func main() {
 
 	// configure mongo
 	db.ConnectDB()
+
+	// middleware
+	r.Use(middleware.LoggerMiddleware())
 
 	// register routes
 	ingredient.RegisterRoutes(r)

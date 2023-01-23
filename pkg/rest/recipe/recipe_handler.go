@@ -6,9 +6,11 @@ import (
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"net/http"
 	"recipes-core-api/models"
 	"recipes-core-api/pkg/db"
+	"strconv"
 	"time"
 )
 
@@ -18,7 +20,7 @@ var unitCollection = db.GetCollection(db.DB, "units")
 
 func CreateRecipe() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		//var recipe models.Recipe
 		//var recipeIngredient models.RecipeIngredient
 		var i models.Ingredient
@@ -35,52 +37,50 @@ func CreateRecipe() gin.HandlerFunc {
 		//	return
 		//}
 
-		for x := 1; x < 5000; x++ {
-
-			ingredientObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca2") // salt
-			errI := ingredientCollection.FindOne(ctx, bson.M{"_id": ingredientObjectId}).Decode(&i)
-			if errI != nil {
-				return
-			}
-
-			unitObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca7") // g
-			errU := unitCollection.FindOne(ctx, bson.M{"_id": unitObjectId}).Decode(&u)
-			if errU != nil {
-				return
-			}
-
-			newRecipeIngredient1 := models.RecipeIngredient{
-				Ingredient: i,
-				Unit:       u,
-				AmountFrom: 5,
-			}
-
-			newRecipeIngredient2 := models.RecipeIngredient{
-				Ingredient: i,
-				Unit:       u,
-			}
-
-			newRecipeIngredientGroup := models.RecipeIngredientGroup{
-				Name:             "default",
-				Order:            12,
-				RecipeIngredient: []models.RecipeIngredient{newRecipeIngredient1, newRecipeIngredient2},
-			}
-
-			newRecipe := models.Recipe{
-				Id:                    uuid.NewString(),
-				Language:              "hu_HU",
-				IsPublished:           true,
-				Title:                 "My first Recipe with GO!",
-				Slug:                  "my-first-recipe-with-go",
-				PreparationTime:       20,
-				CookingTime:           60,
-				Difficulty:            1,
-				YoutubeVideoId:        "someFancyYoutubeVideoId",
-				RecipeIngredientGroup: []models.RecipeIngredientGroup{newRecipeIngredientGroup},
-			}
-
-			recipeCollection.InsertOne(ctx, newRecipe)
+		ingredientObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca2") // salt
+		errI := ingredientCollection.FindOne(ctx, bson.M{"_id": ingredientObjectId}).Decode(&i)
+		if errI != nil {
+			return
 		}
+
+		unitObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca7") // g
+		errU := unitCollection.FindOne(ctx, bson.M{"_id": unitObjectId}).Decode(&u)
+		if errU != nil {
+			return
+		}
+
+		newRecipeIngredient1 := models.RecipeIngredient{
+			Ingredient: i,
+			Unit:       u,
+			AmountFrom: 5,
+		}
+
+		newRecipeIngredient2 := models.RecipeIngredient{
+			Ingredient: i,
+			Unit:       u,
+		}
+
+		newRecipeIngredientGroup := models.RecipeIngredientGroup{
+			Name:             "default",
+			Order:            12,
+			RecipeIngredient: []models.RecipeIngredient{newRecipeIngredient1, newRecipeIngredient2},
+		}
+
+		newRecipe := models.Recipe{
+			Id:                    uuid.NewString(),
+			Language:              "hu_HU",
+			IsPublished:           true,
+			Title:                 "My first Recipe with GO!",
+			Slug:                  "my-first-recipe-with-go",
+			PreparationTime:       20,
+			CookingTime:           60,
+			Difficulty:            1,
+			YoutubeVideoId:        "someFancyYoutubeVideoId",
+			RecipeIngredientGroup: []models.RecipeIngredientGroup{newRecipeIngredientGroup},
+		}
+
+		recipeCollection.InsertOne(ctx, newRecipe)
+
 	}
 }
 
@@ -114,8 +114,40 @@ func GetAllRecipes() gin.HandlerFunc {
 	}
 }
 
-func GetAllRecipesPaginated() gin.HandlerFunc {
+func GetRecipesPaginated() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		var recipes []models.Recipe
+		defer cancel()
+
+		pageStr := c.DefaultQuery("page", "0")
+		sizeStr := c.DefaultQuery("size", "12")
+
+		page, _ := strconv.Atoi(pageStr)
+		size, _ := strconv.Atoi(sizeStr)
+
+		pageOptions := options.Find().SetSkip(int64(page)).SetLimit(int64(size))
+
+		results, err := recipeCollection.Find(ctx, bson.M{}, pageOptions)
+		if err != nil {
+			return
+		}
+
+		defer results.Close(ctx)
+
+		for results.Next(ctx) {
+			var recipe models.Recipe
+			if err = results.Decode(&recipe); err != nil {
+				sendErrorJson(c, err)
+			}
+			recipes = append(recipes, recipe)
+		}
+
+		c.JSON(http.StatusOK, models.ApiResponse{
+			Status:  http.StatusOK,
+			Message: "success",
+			Data:    map[string]interface{}{"data": recipes}},
+		)
 
 	}
 }

@@ -3,13 +3,14 @@ package demo
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"recipes-core-api/models"
 	"recipes-core-api/pkg/db"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 var recipeCollection = db.GetCollection(db.DB, "recipes")
@@ -23,7 +24,6 @@ var servingTypeCollection = db.GetCollection(db.DB, "servingtypes")
 
 func InitDemoData() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 
 		var ing models.Ingredient

@@ -2,15 +2,16 @@ package ingredient
 
 import (
 	"context"
+	"net/http"
+	"recipes-core-api/models"
+	"recipes-core-api/pkg/db"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"net/http"
-	"recipes-core-api/models"
-	"recipes-core-api/pkg/db"
-	"time"
 )
 
 var ingredientCollection = db.GetCollection(db.DB, "ingredients")
@@ -32,7 +33,7 @@ func CreateIngredient() gin.HandlerFunc {
 			return
 		}
 
-		//use the validator library to validate required fields
+		// use the validator library to validate required fields
 		if validationErr := validate.Struct(&ingredient); validationErr != nil {
 			c.JSON(http.StatusBadRequest, models.ApiResponse{
 				Status:  http.StatusBadRequest,
@@ -81,7 +82,7 @@ func GetAllIngredients() gin.HandlerFunc {
 			return
 		}
 
-		//reading from the db in an optimal way
+		// reading from the db in an optimal way
 		defer results.Close(ctx)
 		for results.Next(ctx) {
 			var ingredient models.Ingredient

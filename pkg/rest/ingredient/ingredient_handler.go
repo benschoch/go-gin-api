@@ -25,7 +25,7 @@ func CreateIngredient() gin.HandlerFunc {
 
 		// bind request to struct
 		if err := c.BindJSON(&ingredient); err != nil {
-			c.JSON(http.StatusBadRequest, models.ApiResponse{
+			c.JSON(http.StatusBadRequest, models.APIResponse{
 				Status:  http.StatusBadRequest,
 				Message: "error",
 				Data:    map[string]interface{}{"data": err.Error()}},
@@ -35,7 +35,7 @@ func CreateIngredient() gin.HandlerFunc {
 
 		// use the validator library to validate required fields
 		if validationErr := validate.Struct(&ingredient); validationErr != nil {
-			c.JSON(http.StatusBadRequest, models.ApiResponse{
+			c.JSON(http.StatusBadRequest, models.APIResponse{
 				Status:  http.StatusBadRequest,
 				Message: "error",
 				Data:    map[string]interface{}{"data": validationErr.Error()}})
@@ -51,14 +51,14 @@ func CreateIngredient() gin.HandlerFunc {
 
 		result, err := ingredientCollection.InsertOne(ctx, newIngredient)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, models.ApiResponse{
+			c.JSON(http.StatusInternalServerError, models.APIResponse{
 				Status:  http.StatusInternalServerError,
 				Message: "error",
 				Data:    map[string]interface{}{"data": err.Error()}})
 			return
 		}
 
-		c.JSON(http.StatusCreated, models.ApiResponse{
+		c.JSON(http.StatusCreated, models.APIResponse{
 			Status:  http.StatusCreated,
 			Message: "success",
 			Data:    map[string]interface{}{"data": result}},
@@ -74,7 +74,7 @@ func GetAllIngredients() gin.HandlerFunc {
 
 		results, err := ingredientCollection.Find(ctx, bson.M{})
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, models.ApiResponse{
+			c.JSON(http.StatusInternalServerError, models.APIResponse{
 				Status:  http.StatusInternalServerError,
 				Message: "error",
 				Data:    map[string]interface{}{"data": err.Error()}},
@@ -87,7 +87,7 @@ func GetAllIngredients() gin.HandlerFunc {
 		for results.Next(ctx) {
 			var ingredient models.Ingredient
 			if err = results.Decode(&ingredient); err != nil {
-				c.JSON(http.StatusInternalServerError, models.ApiResponse{
+				c.JSON(http.StatusInternalServerError, models.APIResponse{
 					Status:  http.StatusInternalServerError,
 					Message: "error",
 					Data:    map[string]interface{}{"data": err.Error()}})
@@ -96,7 +96,7 @@ func GetAllIngredients() gin.HandlerFunc {
 			ingredients = append(ingredients, ingredient)
 		}
 
-		c.JSON(http.StatusOK, models.ApiResponse{
+		c.JSON(http.StatusOK, models.APIResponse{
 			Status:  http.StatusOK,
 			Message: "success",
 			Data:    map[string]interface{}{"data": ingredients}},
@@ -104,17 +104,17 @@ func GetAllIngredients() gin.HandlerFunc {
 	}
 }
 
-func GetIngredientById() gin.HandlerFunc {
+func GetIngredientByID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		ingredientId := c.Param("id")
+		ingredientID := c.Param("id")
 		var ingredient models.Ingredient
 		defer cancel()
 
-		objId, _ := primitive.ObjectIDFromHex(ingredientId)
-		err := ingredientCollection.FindOne(ctx, bson.M{"_id": objId}).Decode(&ingredient)
+		objID, _ := primitive.ObjectIDFromHex(ingredientID)
+		err := ingredientCollection.FindOne(ctx, bson.M{"_id": objID}).Decode(&ingredient)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, models.ApiResponse{
+			c.JSON(http.StatusInternalServerError, models.APIResponse{
 				Status:  http.StatusInternalServerError,
 				Message: "error",
 				Data:    map[string]interface{}{"data": err.Error()}},
@@ -122,7 +122,7 @@ func GetIngredientById() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, models.ApiResponse{
+		c.JSON(http.StatusOK, models.APIResponse{
 			Status:  http.StatusOK,
 			Message: "success",
 			Data:    map[string]interface{}{"data": ingredient}},

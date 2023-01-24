@@ -11,8 +11,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-var unitCollection = db.GetCollection(db.DB, "units")
-
 func CreateUnit() {
 	// TODO implement
 }
@@ -23,9 +21,11 @@ func GetAllUnits() gin.HandlerFunc {
 		var units []models.Unit
 		defer cancel()
 
+		unitCollection := db.GetCollection(db.DB, "units")
+
 		results, err := unitCollection.Find(ctx, bson.M{})
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, models.ApiResponse{
+			c.JSON(http.StatusInternalServerError, models.APIResponse{
 				Status:  http.StatusInternalServerError,
 				Message: "error",
 				Data:    map[string]interface{}{"data": err.Error()}},
@@ -36,7 +36,7 @@ func GetAllUnits() gin.HandlerFunc {
 		for results.Next(ctx) {
 			var unit models.Unit
 			if err = results.Decode(&unit); err != nil {
-				c.JSON(http.StatusInternalServerError, models.ApiResponse{
+				c.JSON(http.StatusInternalServerError, models.APIResponse{
 					Status:  http.StatusInternalServerError,
 					Message: "error",
 					Data:    map[string]interface{}{"data": err.Error()}})
@@ -45,7 +45,7 @@ func GetAllUnits() gin.HandlerFunc {
 			units = append(units, unit)
 		}
 
-		c.JSON(http.StatusOK, models.ApiResponse{
+		c.JSON(http.StatusOK, models.APIResponse{
 			Status:  http.StatusOK,
 			Message: "success",
 			Data:    map[string]interface{}{"data": units}},

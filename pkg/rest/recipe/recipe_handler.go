@@ -30,22 +30,22 @@ func CreateRecipe() gin.HandlerFunc {
 
 		// validate the request and bind to struct
 		// if err := c.BindJSON(&recipe); err != nil {
-		//	c.JSON(http.StatusBadRequest, models.ApiResponse{
+		//	c.JSON(http.StatusBadRequest, models.APIResponse{
 		//		Status:  http.StatusBadRequest,
 		//		Message: "error",
 		//		Data:    map[string]interface{}{"data": err.Error()}},
 		//	)
 		//	return
-		//}
+		// }
 
-		ingredientObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca2") // salt
-		errI := ingredientCollection.FindOne(ctx, bson.M{"_id": ingredientObjectId}).Decode(&i)
+		ingredientObjectID, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca2") // salt
+		errI := ingredientCollection.FindOne(ctx, bson.M{"_id": ingredientObjectID}).Decode(&i)
 		if errI != nil {
 			return
 		}
 
-		unitObjectId, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca7") // g
-		errU := unitCollection.FindOne(ctx, bson.M{"_id": unitObjectId}).Decode(&u)
+		unitObjectID, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca7") // g
+		errU := unitCollection.FindOne(ctx, bson.M{"_id": unitObjectID}).Decode(&u)
 		if errU != nil {
 			return
 		}
@@ -68,7 +68,7 @@ func CreateRecipe() gin.HandlerFunc {
 		}
 
 		newRecipe := models.Recipe{
-			Id:                    uuid.NewString(),
+			ID:                    uuid.NewString(),
 			Language:              "hu_HU",
 			IsPublished:           true,
 			Title:                 "My first Recipe with GO!",
@@ -76,7 +76,7 @@ func CreateRecipe() gin.HandlerFunc {
 			PreparationTime:       20,
 			CookingTime:           60,
 			Difficulty:            1,
-			YoutubeVideoId:        "someFancyYoutubeVideoId",
+			YoutubeVideoID:        "someFancyYoutubeVideoId",
 			RecipeIngredientGroup: []models.RecipeIngredientGroup{newRecipeIngredientGroup},
 		}
 
@@ -93,7 +93,7 @@ func GetAllRecipes() gin.HandlerFunc {
 		results, err := recipeCollection.Find(ctx, bson.M{})
 
 		if err != nil {
-			sendErrorJson(c, err)
+			sendErrorJSON(c, err)
 			return
 		}
 
@@ -101,12 +101,12 @@ func GetAllRecipes() gin.HandlerFunc {
 		for results.Next(ctx) {
 			var recipe models.Recipe
 			if err = results.Decode(&recipe); err != nil {
-				sendErrorJson(c, err)
+				sendErrorJSON(c, err)
 			}
 			recipes = append(recipes, recipe)
 		}
 
-		c.JSON(http.StatusOK, models.ApiResponse{
+		c.JSON(http.StatusOK, models.APIResponse{
 			Status:  http.StatusOK,
 			Message: "success",
 			Data:    map[string]interface{}{"data": recipes}},
@@ -139,12 +139,12 @@ func GetRecipesPaginated() gin.HandlerFunc {
 		for results.Next(ctx) {
 			var recipe models.Recipe
 			if err = results.Decode(&recipe); err != nil {
-				sendErrorJson(c, err)
+				sendErrorJSON(c, err)
 			}
 			recipes = append(recipes, recipe)
 		}
 
-		c.JSON(http.StatusOK, models.ApiResponse2{
+		c.JSON(http.StatusOK, models.APIResponse2{
 			Status:         http.StatusOK,
 			Message:        "success",
 			Total:          documents,
@@ -155,17 +155,17 @@ func GetRecipesPaginated() gin.HandlerFunc {
 	}
 }
 
-func GetRecipeById() gin.HandlerFunc {
+func GetRecipeByID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		recipeId := c.Param("id")
+		recipeID := c.Param("id")
 		var recipe models.Recipe
 		defer cancel()
 
-		// objId, _ := primitive.ObjectIDFromHex(recipeId)
-		err := recipeCollection.FindOne(ctx, bson.M{"_id": recipeId}).Decode(&recipe)
+		// objId, _ := primitive.ObjectIDFromHex(recipeID)
+		err := recipeCollection.FindOne(ctx, bson.M{"_id": recipeID}).Decode(&recipe)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, models.ApiResponse{
+			c.JSON(http.StatusInternalServerError, models.APIResponse{
 				Status:  http.StatusInternalServerError,
 				Message: "error",
 				Data:    map[string]interface{}{"data": err.Error()}},
@@ -173,7 +173,7 @@ func GetRecipeById() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, models.ApiResponse{
+		c.JSON(http.StatusOK, models.APIResponse{
 			Status:  http.StatusOK,
 			Message: "success",
 			Data:    map[string]interface{}{"data": recipe}},
@@ -190,7 +190,7 @@ func GetRecipeByTitle() gin.HandlerFunc {
 
 		err := recipeCollection.FindOne(ctx, bson.M{"title": title}).Decode(&recipe)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, models.ApiResponse{
+			c.JSON(http.StatusInternalServerError, models.APIResponse{
 				Status:  http.StatusInternalServerError,
 				Message: "error",
 				Data:    map[string]interface{}{"data": err.Error()}},
@@ -198,7 +198,7 @@ func GetRecipeByTitle() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, models.ApiResponse{
+		c.JSON(http.StatusOK, models.APIResponse{
 			Status:  http.StatusOK,
 			Message: "success",
 			Data:    map[string]interface{}{"data": recipe}},
@@ -206,8 +206,8 @@ func GetRecipeByTitle() gin.HandlerFunc {
 	}
 }
 
-func sendErrorJson(c *gin.Context, err error) {
-	c.JSON(http.StatusInternalServerError, models.ApiResponse{
+func sendErrorJSON(c *gin.Context, err error) {
+	c.JSON(http.StatusInternalServerError, models.APIResponse{
 		Status:  http.StatusInternalServerError,
 		Message: "error",
 		Data:    map[string]interface{}{"data": err.Error()},

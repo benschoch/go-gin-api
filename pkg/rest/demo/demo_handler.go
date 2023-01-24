@@ -13,18 +13,21 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-var recipeCollection = db.GetCollection(db.DB, "recipes")
-var courseCollection = db.GetCollection(db.DB, "courses")
-var dietCollection = db.GetCollection(db.DB, "diets")
-var ingredientCollection = db.GetCollection(db.DB, "ingredients")
-var unitCollection = db.GetCollection(db.DB, "units")
-var regionCollection = db.GetCollection(db.DB, "regions")
-var foodTypeCollection = db.GetCollection(db.DB, "foodtypes")
-var servingTypeCollection = db.GetCollection(db.DB, "servingtypes")
+var (
+	recipeCollection      = db.GetCollection(db.DB, "recipes")
+	courseCollection      = db.GetCollection(db.DB, "courses")
+	dietCollection        = db.GetCollection(db.DB, "diets")
+	ingredientCollection  = db.GetCollection(db.DB, "ingredients")
+	unitCollection        = db.GetCollection(db.DB, "units")
+	regionCollection      = db.GetCollection(db.DB, "regions")
+	foodTypeCollection    = db.GetCollection(db.DB, "foodtypes")
+	servingTypeCollection = db.GetCollection(db.DB, "servingtypes")
+)
 
-func InitDemoData() gin.HandlerFunc {
+func CreateDemoHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		handlerTimeout := 60 * time.Second
+		ctx, cancel := context.WithTimeout(context.Background(), handlerTimeout)
 
 		var ing models.Ingredient
 		var uni models.Unit
@@ -82,7 +85,7 @@ func InitDemoData() gin.HandlerFunc {
 
 		regionArray := []string{"Asia", "Spain", "Hungarian"}
 		for _, s := range regionArray {
-			newRegion := models.Region{Id: uuid.NewString(), Language: "en_LD", Name: s}
+			newRegion := models.Region{ID: uuid.NewString(), Language: "en_LD", Name: s}
 			_, err := regionCollection.InsertOne(context.TODO(), newRegion)
 			if err != nil {
 				log.Println(err)
@@ -144,7 +147,7 @@ func InitDemoData() gin.HandlerFunc {
 				Filter: "420x420",
 			}
 			newImage := models.Image{
-				Url:            "https://path/to/our/storage/nice.jpg",
+				URL:            "https://path/to/our/storage/nice.jpg",
 				ImageVariation: []models.ImageVariation{newImageVar1, newImageVar2},
 			}
 
@@ -181,7 +184,7 @@ func InitDemoData() gin.HandlerFunc {
 			}
 
 			newRecipe := models.Recipe{
-				Id:                    uuid.NewString(),
+				ID:                    uuid.NewString(),
 				Language:              "en_LD",
 				IsPublished:           true,
 				Title:                 fmt.Sprintf("%s%d", "Recipe-", x),
@@ -189,7 +192,7 @@ func InitDemoData() gin.HandlerFunc {
 				PreparationTime:       20,
 				CookingTime:           60,
 				Difficulty:            1,
-				YoutubeVideoId:        "someFancyYoutubeVideoId",
+				YoutubeVideoID:        "someFancyYoutubeVideoId",
 				Course:                []models.Course{cou1, cou2},
 				Diet:                  []models.Diet{diet1, diet2},
 				RecipeIngredientGroup: []models.RecipeIngredientGroup{newRecipeIngredientGroup},

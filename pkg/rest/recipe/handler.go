@@ -15,11 +15,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var recipeCollection = db.GetCollection(db.DB, "recipes")
-var ingredientCollection = db.GetCollection(db.DB, "ingredients")
-var unitCollection = db.GetCollection(db.DB, "units")
+type Handler struct {
+	dbConnection *db.Connection
+}
 
-func CreateRecipe() gin.HandlerFunc {
+func NewHandler(dbConnection *db.Connection) *Handler {
+	return &Handler{dbConnection: dbConnection}
+}
+
+func (h *Handler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		// var recipe models.Recipe
@@ -38,6 +42,7 @@ func CreateRecipe() gin.HandlerFunc {
 		//	return
 		// }
 
+		ingredientCollection := h.dbConnection.GetCollection("ingredients")
 		ingredientObjectID, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca2") // salt
 		errI := ingredientCollection.FindOne(ctx, bson.M{"_id": ingredientObjectID}).Decode(&i)
 		if errI != nil {
@@ -45,6 +50,7 @@ func CreateRecipe() gin.HandlerFunc {
 		}
 
 		unitObjectID, _ := primitive.ObjectIDFromHex("63cbca0e2e2cf00250192ca7") // g
+		unitCollection := h.dbConnection.GetUnits()
 		errU := unitCollection.FindOne(ctx, bson.M{"_id": unitObjectID}).Decode(&u)
 		if errU != nil {
 			return
@@ -79,21 +85,26 @@ func CreateRecipe() gin.HandlerFunc {
 			YoutubeVideoID:        "someFancyYoutubeVideoId",
 			RecipeIngredientGroup: []models.RecipeIngredientGroup{newRecipeIngredientGroup},
 		}
-
-		recipeCollection.InsertOne(ctx, newRecipe)
+		recipeCollection := h.dbConnection.GetRecipes()
+		_, err := recipeCollection.InsertOne(ctx, newRecipe)
+		if err != nil {
+			h.sendErrorJSON(c, err)
+			return
+		}
 	}
 }
 
-func GetAllRecipes() gin.HandlerFunc {
+func (h *Handler) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		var recipes []models.Recipe
 		defer cancel()
 
+		recipeCollection := h.dbConnection.GetRecipes()
 		results, err := recipeCollection.Find(ctx, bson.M{})
 
 		if err != nil {
-			sendErrorJSON(c, err)
+			h.sendErrorJSON(c, err)
 			return
 		}
 
@@ -101,7 +112,7 @@ func GetAllRecipes() gin.HandlerFunc {
 		for results.Next(ctx) {
 			var recipe models.Recipe
 			if err = results.Decode(&recipe); err != nil {
-				sendErrorJSON(c, err)
+				h.sendErrorJSON(c, err)
 			}
 			recipes = append(recipes, recipe)
 		}
@@ -114,7 +125,7 @@ func GetAllRecipes() gin.HandlerFunc {
 	}
 }
 
-func GetRecipesPaginated() gin.HandlerFunc {
+func (h *Handler) GetAllPaginated() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		var recipes []models.Recipe
@@ -128,6 +139,7 @@ func GetRecipesPaginated() gin.HandlerFunc {
 
 		pageOptions := options.Find().SetSkip((page - 1) * size).SetLimit(size)
 
+		recipeCollection := h.dbConnection.GetRecipes()
 		documents, _ := recipeCollection.EstimatedDocumentCount(ctx)
 		results, err := recipeCollection.Find(ctx, bson.M{}, pageOptions)
 		if err != nil {
@@ -139,7 +151,7 @@ func GetRecipesPaginated() gin.HandlerFunc {
 		for results.Next(ctx) {
 			var recipe models.Recipe
 			if err = results.Decode(&recipe); err != nil {
-				sendErrorJSON(c, err)
+				h.sendErrorJSON(c, err)
 			}
 			recipes = append(recipes, recipe)
 		}
@@ -155,7 +167,7 @@ func GetRecipesPaginated() gin.HandlerFunc {
 	}
 }
 
-func GetRecipeByID() gin.HandlerFunc {
+func (h *Handler) GetByID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		recipeID := c.Param("id")
@@ -163,13 +175,10 @@ func GetRecipeByID() gin.HandlerFunc {
 		defer cancel()
 
 		// objId, _ := primitive.ObjectIDFromHex(recipeID)
+		recipeCollection := h.dbConnection.GetRecipes()
 		err := recipeCollection.FindOne(ctx, bson.M{"_id": recipeID}).Decode(&recipe)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, models.APIResponse{
-				Status:  http.StatusInternalServerError,
-				Message: "error",
-				Data:    map[string]interface{}{"data": err.Error()}},
-			)
+			h.sendErrorJSON(c, err)
 			return
 		}
 
@@ -181,20 +190,17 @@ func GetRecipeByID() gin.HandlerFunc {
 	}
 }
 
-func GetRecipeByTitle() gin.HandlerFunc {
+func (h *Handler) GetByTitle() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		title := c.Param("title")
 		var recipe models.Recipe
 		defer cancel()
 
+		recipeCollection := h.dbConnection.GetRecipes()
 		err := recipeCollection.FindOne(ctx, bson.M{"title": title}).Decode(&recipe)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, models.APIResponse{
-				Status:  http.StatusInternalServerError,
-				Message: "error",
-				Data:    map[string]interface{}{"data": err.Error()}},
-			)
+			h.sendErrorJSON(c, err)
 			return
 		}
 
@@ -206,7 +212,7 @@ func GetRecipeByTitle() gin.HandlerFunc {
 	}
 }
 
-func sendErrorJSON(c *gin.Context, err error) {
+func (h *Handler) sendErrorJSON(c *gin.Context, err error) {
 	c.JSON(http.StatusInternalServerError, models.APIResponse{
 		Status:  http.StatusInternalServerError,
 		Message: "error",

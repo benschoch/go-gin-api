@@ -13,18 +13,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-var (
-	recipeCollection      = db.GetCollection(db.DB, "recipes")
-	courseCollection      = db.GetCollection(db.DB, "courses")
-	dietCollection        = db.GetCollection(db.DB, "diets")
-	ingredientCollection  = db.GetCollection(db.DB, "ingredients")
-	unitCollection        = db.GetCollection(db.DB, "units")
-	regionCollection      = db.GetCollection(db.DB, "regions")
-	foodTypeCollection    = db.GetCollection(db.DB, "foodtypes")
-	servingTypeCollection = db.GetCollection(db.DB, "servingtypes")
-)
+type Handler struct {
+	dbConnection *db.Connection
+}
 
-func CreateDemoHandler() gin.HandlerFunc {
+func NewHandler(dbConnection *db.Connection) *Handler {
+	return &Handler{dbConnection: dbConnection}
+}
+
+func (h *Handler) Demo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		handlerTimeout := 60 * time.Second
 		ctx, cancel := context.WithTimeout(context.Background(), handlerTimeout)
@@ -38,15 +35,14 @@ func CreateDemoHandler() gin.HandlerFunc {
 
 		defer cancel()
 
-		client := db.ConnectDB()
-
 		log.Println("Dropping database...")
-		err := client.Database("api").Drop(context.TODO())
+		err := h.dbConnection.DropDB()
 		if err != nil {
 			log.Println(err)
 		}
 		log.Println("Creating demo data...")
 
+		courseCollection := h.dbConnection.GetCourses()
 		courseArray := []string{"Breakfast", "Brunch", "Dinner", "Lunch"}
 		for _, s := range courseArray {
 			newC := models.Course{Id: uuid.NewString(), Language: "en_LD", Name: s}
@@ -56,6 +52,7 @@ func CreateDemoHandler() gin.HandlerFunc {
 			}
 		}
 
+		dietCollection := h.dbConnection.GetDiets()
 		dietArray := []string{"Gluten-free", "Lactose-free", "Low Carb", "Vegan"}
 		for _, s := range dietArray {
 			newD := models.Diet{Id: uuid.NewString(), Language: "en_LD", Name: s}
@@ -65,6 +62,7 @@ func CreateDemoHandler() gin.HandlerFunc {
 			}
 		}
 
+		ingredientCollection := h.dbConnection.GetIngredients()
 		ingredientArray := []string{"salt", "pepper", "pasta", "meat", "oil"}
 		for _, s := range ingredientArray {
 			newIngredient := models.Ingredient{Id: uuid.NewString(), Language: "en_LD", Singular: s, Plural: s}
@@ -74,6 +72,7 @@ func CreateDemoHandler() gin.HandlerFunc {
 			}
 		}
 
+		unitCollection := h.dbConnection.GetUnits()
 		unitArray := []string{"g", "kg", "l", "ml", "handful"}
 		for _, s := range unitArray {
 			newUnit := models.Unit{Id: uuid.NewString(), Language: "en_LD", Singular: s, Plural: s}
@@ -83,6 +82,7 @@ func CreateDemoHandler() gin.HandlerFunc {
 			}
 		}
 
+		regionCollection := h.dbConnection.GetRegions()
 		regionArray := []string{"Asia", "Spain", "Hungarian"}
 		for _, s := range regionArray {
 			newRegion := models.Region{ID: uuid.NewString(), Language: "en_LD", Name: s}
@@ -92,6 +92,7 @@ func CreateDemoHandler() gin.HandlerFunc {
 			}
 		}
 
+		foodTypeCollection := h.dbConnection.GetFoodTypes()
 		foodTypeArray := []string{"Pasta", "Fruit", "Meat", "Fish"}
 		for _, s := range foodTypeArray {
 			newFoodType := models.FoodType{Id: uuid.NewString(), Language: "en_LD", Name: s}
@@ -101,6 +102,7 @@ func CreateDemoHandler() gin.HandlerFunc {
 			}
 		}
 
+		servingTypeCollection := h.dbConnection.GetServingTypes()
 		servingTypeArray := []string{"Cup", "Piece", "Ball", "Bar"}
 		for _, s := range servingTypeArray {
 			newST := models.ServingType{Id: uuid.NewString(), Language: "en_LD", Singular: s, Plural: s}
@@ -110,6 +112,7 @@ func CreateDemoHandler() gin.HandlerFunc {
 			}
 		}
 
+		recipeCollection := h.dbConnection.GetRecipes()
 		for x := 1; x < 5000; x++ {
 			errI := ingredientCollection.FindOne(ctx, bson.M{"singular": "salt"}).Decode(&ing)
 			if errI != nil {

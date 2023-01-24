@@ -14,10 +14,16 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var ingredientCollection = db.GetCollection(db.DB, "ingredients")
-var validate = validator.New()
+type Handler struct {
+	dbConnection *db.Connection
+	validator    *validator.Validate
+}
 
-func CreateIngredient() gin.HandlerFunc {
+func NewHandler(dbConnection *db.Connection, validate *validator.Validate) *Handler {
+	return &Handler{dbConnection: dbConnection, validator: validate}
+}
+
+func (h *Handler) Create() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		var ingredient models.Ingredient
@@ -34,7 +40,7 @@ func CreateIngredient() gin.HandlerFunc {
 		}
 
 		// use the validator library to validate required fields
-		if validationErr := validate.Struct(&ingredient); validationErr != nil {
+		if validationErr := h.validator.Struct(&ingredient); validationErr != nil {
 			c.JSON(http.StatusBadRequest, models.APIResponse{
 				Status:  http.StatusBadRequest,
 				Message: "error",
@@ -49,6 +55,7 @@ func CreateIngredient() gin.HandlerFunc {
 			Synonyms: ingredient.Synonyms,
 		}
 
+		ingredientCollection := h.dbConnection.GetIngredients()
 		result, err := ingredientCollection.InsertOne(ctx, newIngredient)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.APIResponse{
@@ -58,20 +65,21 @@ func CreateIngredient() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusCreated, models.APIResponse{
+		c.JSON(http.StatusCreated, &models.APIResponse{
 			Status:  http.StatusCreated,
 			Message: "success",
-			Data:    map[string]interface{}{"data": result}},
-		)
+			Data:    map[string]interface{}{"data": result},
+		})
 	}
 }
 
-func GetAllIngredients() gin.HandlerFunc {
+func (h *Handler) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		var ingredients []models.Ingredient
 		defer cancel()
 
+		ingredientCollection := h.dbConnection.GetIngredients()
 		results, err := ingredientCollection.Find(ctx, bson.M{})
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.APIResponse{
@@ -104,7 +112,7 @@ func GetAllIngredients() gin.HandlerFunc {
 	}
 }
 
-func GetIngredientByID() gin.HandlerFunc {
+func (h *Handler) GetByID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		ingredientID := c.Param("id")
@@ -112,6 +120,7 @@ func GetIngredientByID() gin.HandlerFunc {
 		defer cancel()
 
 		objID, _ := primitive.ObjectIDFromHex(ingredientID)
+		ingredientCollection := h.dbConnection.GetIngredients()
 		err := ingredientCollection.FindOne(ctx, bson.M{"_id": objID}).Decode(&ingredient)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.APIResponse{

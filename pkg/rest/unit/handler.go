@@ -11,18 +11,21 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func CreateUnit() {
-	// TODO implement
+type Handler struct {
+	dbConnection *db.Connection
 }
 
-func GetAllUnits() gin.HandlerFunc {
+func NewHandler(dbConnection *db.Connection) *Handler {
+	return &Handler{dbConnection: dbConnection}
+}
+
+func (h *Handler) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		var units []models.Unit
 		defer cancel()
 
-		unitCollection := db.GetCollection(db.DB, "units")
-
+		unitCollection := h.dbConnection.GetCollection("units")
 		results, err := unitCollection.Find(ctx, bson.M{})
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.APIResponse{

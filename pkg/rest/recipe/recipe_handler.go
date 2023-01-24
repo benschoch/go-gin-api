@@ -120,14 +120,15 @@ func GetRecipesPaginated() gin.HandlerFunc {
 		var recipes []models.Recipe
 		defer cancel()
 
-		pageStr := c.DefaultQuery("page", "0")
+		pageStr := c.DefaultQuery("page", "1")
 		sizeStr := c.DefaultQuery("size", "12")
 
-		page, _ := strconv.Atoi(pageStr)
-		size, _ := strconv.Atoi(sizeStr)
+		page, _ := strconv.ParseInt(pageStr, 10, 64)
+		size, _ := strconv.ParseInt(sizeStr, 10, 64)
 
-		pageOptions := options.Find().SetSkip(int64(page)).SetLimit(int64(size))
+		pageOptions := options.Find().SetSkip((page - 1) * size).SetLimit(size)
 
+		documents, _ := recipeCollection.EstimatedDocumentCount(ctx)
 		results, err := recipeCollection.Find(ctx, bson.M{}, pageOptions)
 		if err != nil {
 			return
@@ -143,10 +144,13 @@ func GetRecipesPaginated() gin.HandlerFunc {
 			recipes = append(recipes, recipe)
 		}
 
-		c.JSON(http.StatusOK, models.ApiResponse{
-			Status:  http.StatusOK,
-			Message: "success",
-			Data:    map[string]interface{}{"data": recipes}},
+		c.JSON(http.StatusOK, models.ApiResponse2{
+			Status:         http.StatusOK,
+			Message:        "success",
+			Total:          documents,
+			RecipesPerPage: size,
+			PageNumber:     page,
+			Data:           map[string]interface{}{"recipes": recipes}},
 		)
 
 	}

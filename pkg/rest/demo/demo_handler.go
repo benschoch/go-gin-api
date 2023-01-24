@@ -2,6 +2,7 @@ package demo
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -107,8 +108,6 @@ func InitDemoData() gin.HandlerFunc {
 		}
 
 		for x := 1; x < 5000; x++ {
-			log.Println("Creating 5000 demo recipes en_LD data...")
-
 			errI := ingredientCollection.FindOne(ctx, bson.M{"singular": "salt"}).Decode(&ing)
 			if errI != nil {
 				return
@@ -185,7 +184,7 @@ func InitDemoData() gin.HandlerFunc {
 				Id:                    uuid.NewString(),
 				Language:              "en_LD",
 				IsPublished:           true,
-				Title:                 "My first Recipe with GO!",
+				Title:                 fmt.Sprintf("%s%d", "Recipe-", x),
 				Slug:                  "my-first-recipe-with-go",
 				PreparationTime:       20,
 				CookingTime:           60,

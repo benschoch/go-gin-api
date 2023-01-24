@@ -2,7 +2,7 @@ package models
 
 type Recipe struct {
 	Id                    string                  `json:"id" bson:"_id"`
-	Language              string                  `json:"language,omitempty" bson:"language,omitempty"`
+	Language              string                  `json:"locale,omitempty" bson:"language,omitempty"`
 	IsPublished           bool                    `json:"is_published,omitempty" bson:"is_published,omitempty"`
 	Title                 string                  `json:"title,omitempty" bson:"title,omitempty"`
 	Slug                  string                  `json:"slug,omitempty" bson:"slug,omitempty"`

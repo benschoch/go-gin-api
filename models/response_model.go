@@ -1,12 +1,12 @@
 package models
 
-type ApiResponse struct {
+type APIResponse struct {
 	Status  int                    `json:"status"`
 	Message string                 `json:"message"`
 	Data    map[string]interface{} `json:"data"`
 }
 
-type ApiResponse2 struct {
+type APIResponse2 struct {
 	Status         int                    `json:"status"`
 	Message        string                 `json:"message"`
 	Total          int64                  `json:"total"`

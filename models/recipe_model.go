@@ -1,7 +1,7 @@
 package models
 
 type Recipe struct {
-	Id                    string                  `json:"id" bson:"_id"`
+	ID                    string                  `json:"id" bson:"_id"`
 	Language              string                  `json:"locale,omitempty" bson:"language,omitempty"`
 	IsPublished           bool                    `json:"is_published,omitempty" bson:"is_published,omitempty"`
 	Title                 string                  `json:"title,omitempty" bson:"title,omitempty"`
@@ -9,7 +9,7 @@ type Recipe struct {
 	PreparationTime       int                     `json:"preparation_time,omitempty" bson:"preparation_time,omitempty"`
 	CookingTime           int                     `json:"cooking_time,omitempty" bson:"cooking_time,omitempty"`
 	Difficulty            int                     `json:"difficulty,omitempty" bson:"difficulty,omitempty"`
-	YoutubeVideoId        string                  `json:"youtube_video_id,omitempty" bson:"youtube_video_id,omitempty"`
+	YoutubeVideoID        string                  `json:"youtube_video_id,omitempty" bson:"youtube_video_id,omitempty"`
 	Course                []Course                `json:"courses,omitempty" bson:"courses,omitempty"`
 	Diet                  []Diet                  `json:"diets,omitempty" bson:"diets,omitempty"`
 	RecipeIngredientGroup []RecipeIngredientGroup `json:"ingredient_groups,omitempty" bson:"ingredient_groups,omitempty"`

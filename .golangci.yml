@@ -23,7 +23,7 @@ linters:
     - goerr113 # Golang linter to check the errors handling expressions
     - gofmt # Gofmt checks whether code was gofmt-ed. By default this tool runs with -s option to check for code simplification
     - goimports # In addition to fixing imports, goimports also formats your code in the same style as gofmt.
-    - gomnd # An analyzer to detect magic numbers.
+#    - gomnd # An analyzer to detect magic numbers. # TODO: enable gomnd and give number values descriptive names
     - goprintffuncname # Checks that printf-like functions are named with f at the end
     - gosec # Inspects source code for security problems
     - misspell # Finds commonly misspelled English words in comments

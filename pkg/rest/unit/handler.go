@@ -11,21 +11,24 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-var unitCollection = db.GetCollection(db.DB, "units")
-
-func CreateUnit() {
-	// TODO implement
+type Handler struct {
+	dbConnection *db.Connection
 }
 
-func GetAllUnits() gin.HandlerFunc {
+func NewHandler(dbConnection *db.Connection) *Handler {
+	return &Handler{dbConnection: dbConnection}
+}
+
+func (h *Handler) GetAll() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		var units []models.Unit
 		defer cancel()
 
+		unitCollection := h.dbConnection.GetCollection("units")
 		results, err := unitCollection.Find(ctx, bson.M{})
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, models.ApiResponse{
+			c.JSON(http.StatusInternalServerError, models.APIResponse{
 				Status:  http.StatusInternalServerError,
 				Message: "error",
 				Data:    map[string]interface{}{"data": err.Error()}},
@@ -36,7 +39,7 @@ func GetAllUnits() gin.HandlerFunc {
 		for results.Next(ctx) {
 			var unit models.Unit
 			if err = results.Decode(&unit); err != nil {
-				c.JSON(http.StatusInternalServerError, models.ApiResponse{
+				c.JSON(http.StatusInternalServerError, models.APIResponse{
 					Status:  http.StatusInternalServerError,
 					Message: "error",
 					Data:    map[string]interface{}{"data": err.Error()}})
@@ -45,7 +48,7 @@ func GetAllUnits() gin.HandlerFunc {
 			units = append(units, unit)
 		}
 
-		c.JSON(http.StatusOK, models.ApiResponse{
+		c.JSON(http.StatusOK, models.APIResponse{
 			Status:  http.StatusOK,
 			Message: "success",
 			Data:    map[string]interface{}{"data": units}},

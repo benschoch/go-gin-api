@@ -2,6 +2,8 @@
 .DEFAULT_GOAL = help
 .PHONY        = help build run update dump restore
 
+PWD = $(shell pwd)
+
 ## —— Golang & MongoDB Makefile ———————————————————————————————————————————————————————————————————————————————————————
 help: ## Outputs this help screen
 	@grep -E '(^[a-zA-Z0-9_-]+:.*?##.*$$)|(^##)' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}{printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
@@ -12,6 +14,15 @@ build: ## Build compiles the packages named by the import paths.
 
 run: ## Compiles and runs the named main Go package.
 	go run cmd/main.go
+
+test: ## Compiles and runs the named main Go package.
+	go test ./...
+
+lint: ## Compiles and runs the named main Go package.
+	docker run --rm -v $(PWD):/app -w /app golangci/golangci-lint:v1.50.1 golangci-lint run -v
+
+lint-fix: ## Compiles and runs the named main Go package.
+	docker run --rm -v $(PWD):/app -w /app golangci/golangci-lint:v1.50.1 golangci-lint run -v --fix
 
 update: ## Install and update all modules.
 	go get -u ./...

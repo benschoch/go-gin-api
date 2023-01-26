@@ -2,16 +2,17 @@ package recipe
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"net/http"
 	"recipes-core-api/models"
 	"recipes-core-api/pkg/db"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var recipeCollection = db.GetCollection(db.DB, "recipes")
@@ -21,14 +22,14 @@ var unitCollection = db.GetCollection(db.DB, "units")
 func CreateRecipe() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		//var recipe models.Recipe
-		//var recipeIngredient models.RecipeIngredient
+		// var recipe models.Recipe
+		// var recipeIngredient models.RecipeIngredient
 		var i models.Ingredient
 		var u models.Unit
 		defer cancel()
 
 		// validate the request and bind to struct
-		//if err := c.BindJSON(&recipe); err != nil {
+		// if err := c.BindJSON(&recipe); err != nil {
 		//	c.JSON(http.StatusBadRequest, models.ApiResponse{
 		//		Status:  http.StatusBadRequest,
 		//		Message: "error",
@@ -80,7 +81,6 @@ func CreateRecipe() gin.HandlerFunc {
 		}
 
 		recipeCollection.InsertOne(ctx, newRecipe)
-
 	}
 }
 
@@ -152,7 +152,6 @@ func GetRecipesPaginated() gin.HandlerFunc {
 			PageNumber:     page,
 			Data:           map[string]interface{}{"recipes": recipes}},
 		)
-
 	}
 }
 
@@ -163,7 +162,7 @@ func GetRecipeById() gin.HandlerFunc {
 		var recipe models.Recipe
 		defer cancel()
 
-		//objId, _ := primitive.ObjectIDFromHex(recipeId)
+		// objId, _ := primitive.ObjectIDFromHex(recipeId)
 		err := recipeCollection.FindOne(ctx, bson.M{"_id": recipeId}).Decode(&recipe)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.ApiResponse{

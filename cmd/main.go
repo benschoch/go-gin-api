@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
 	"recipes-core-api/pkg/db"
 	"recipes-core-api/pkg/middleware"
@@ -9,6 +8,8 @@ import (
 	"recipes-core-api/pkg/rest/ingredient"
 	"recipes-core-api/pkg/rest/recipe"
 	"recipes-core-api/pkg/rest/unit"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {

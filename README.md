@@ -5,7 +5,7 @@ docker run -d --name go-mongo-rest -p 127.0.0.1:27017:27017 -e MONGO_INITDB_ROOT
 ```
 run app:
 ```shell
-go run cmd/recipes-core-rest/main.go
+go run cmd/main.go
 ```
 
 execute demo data (5000 recipes):
@@ -22,3 +22,7 @@ https://github.com/gin-gonic/gin
 https://github.com/swaggo/gin-swagger  
 https://github.com/golang-standards/project-layout  
 https://gist.github.com/mbchoa/a9032d05198c1f76a680c94d6bc8f290
+
+### testing & linting
+Run `make test` to run tests and `make lint` to run linting.
+`make lint-fix` automatically tries to fix certain linting issues.
